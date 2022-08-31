@@ -32,9 +32,11 @@ public:
 
     PerLinkedList(){
         this->currentVersion = -1;
+        this->head = nullptr;
     }
 
     void insertPer(int value);
+    void insertPerIn(int value, int prev);
     bool deletePer(int value);
     FatNode * findCurrentVer(int value);
     FatNode * findInVersion(int value, int v);
@@ -62,10 +64,35 @@ void PerLinkedList::insertPer(int value)
         head = novo;
         this->currentVersion += 1;
     }
+}
+
+void PerLinkedList::insertPerIn(int value, int prev)
+{
+    if(this->currentVersion == -1)
+    {
+        cout << "ERROR: Empty List" << endl;
+        return;
+    }
+
+    FatNode * ft = this->findCurrentVer(prev);
+    FatNode * aux = new FatNode;
+
+    VersionTuple<int> dataFNode = VersionTuple<int>(value, this->currentVersion + 1);
+    VersionTuple<FatNode *> nextFNode = VersionTuple<FatNode *>(ft->next[ft->next.size() -1].v,
+            this->currentVersion + 1);
+
+    aux->data.push_back(dataFNode);
+    aux->next.push_back(nextFNode);
+
+    ft->data.push_back(VersionTuple<int>(ft->data[ft->data.size() -1].v
+                       , this->currentVersion + 1));
+    ft->next.push_back(VersionTuple<FatNode *>(aux, this->currentVersion + 1));
+    this->currentVersion++;
 
 }
 
-FatNode * PerLinkedList::findCurrentVer(int value){
+FatNode * PerLinkedList::findCurrentVer(int value)
+{
     bool inList = false;
     FatNode * nodeAux = nullptr;
 
@@ -88,7 +115,8 @@ FatNode * PerLinkedList::findCurrentVer(int value){
     return nodeAux;
 }
 
-FatNode * PerLinkedList::findInVersion(int value, int v){
+FatNode * PerLinkedList::findInVersion(int value, int v)
+{
     bool inList = false;
     FatNode * nodeAux = nullptr;
 
@@ -166,7 +194,6 @@ int main()
    PerLinkedList l;
    l.insertPer(1);
    l.insertPer(2);
-   bool rem = l.deletePer(2);
 
    cout << l.head->data[l.head->data.size() -1].v << endl;
    cout << l.head->data[l.head->data.size() -1].i << endl;
